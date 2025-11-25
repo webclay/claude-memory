@@ -116,6 +116,17 @@ Back to v1.0.0. Everything should work again!"
 
 ## For Developers: Update System Technical Details
 
+### Implementation Notes
+
+**Version Check Method:**
+The system uses a **simple, no-API approach**:
+1. Read local version from `.claude/VERSION`
+2. Fetch GitHub README: `https://raw.githubusercontent.com/webclay/claude-memory/main/README.md`
+3. Extract remote version using WebFetch tool (look for `**Version:** X.X.X` line)
+4. Compare versions using semantic versioning
+
+**No GitHub API required** - this avoids rate limits and authentication complexity.
+
 ### File Categories
 
 **Never Update (User Data):**
@@ -142,9 +153,10 @@ Back to v1.0.0. Everything should work again!"
 ### Update Workflow
 
 1. **Check Version**
-   - Read `.claude/VERSION`
-   - Fetch latest from GitHub API: `https://api.github.com/repos/[user]/claude-memory/releases/latest`
-   - Compare versions
+   - Read local `.claude/VERSION`
+   - Fetch README from GitHub: `https://raw.githubusercontent.com/webclay/claude-memory/main/README.md`
+   - Extract version from the line: `**Version:** X.X.X`
+   - Compare versions (simple semantic version comparison)
 
 2. **Create Backup**
    ```
@@ -155,10 +167,10 @@ Back to v1.0.0. Everything should work again!"
    └── ... (all system files)
    ```
 
-3. **Download Updates**
-   - Fetch from GitHub releases
-   - Download only changed files
-   - Verify checksums
+3. **Download Updates** (Automatic Mode Only)
+   - Guide user to download from GitHub repository
+   - Or fetch files directly using WebFetch from GitHub raw URLs
+   - Example: `https://raw.githubusercontent.com/webclay/claude-memory/main/.claude/CLAUDE.md`
 
 4. **Apply Updates**
    - Replace system files
@@ -173,10 +185,11 @@ Back to v1.0.0. Everything should work again!"
 
 ### GitHub Release Format
 
-Each release should include:
-- Tag: `v1.2.0`
-- Release notes (user-friendly)
-- Attached assets: `claude-memory-v1.2.0.zip`
+Each release should:
+- Update `README.md` with new version number on line `**Version:** X.X.X`
+- Update `.claude/VERSION` file to match
+- Create a git tag: `v1.2.0`
+- Optionally include release notes on GitHub Releases page
 
 ### Version Comparison
 

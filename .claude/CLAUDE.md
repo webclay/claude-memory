@@ -47,6 +47,8 @@ You (Claude):
 
 ### `setup`
 
+**IMPORTANT:** When you see the `setup` command, DO NOT output any analysis or commentary first. IMMEDIATELY display the ASCII header from `.claude/guides/setup-workflow.md`, then silently analyze the environment and present findings.
+
 This single command intelligently handles all scenarios:
 
 **New project (no code)?** → Starts interactive questionnaire, creates TWO documents:

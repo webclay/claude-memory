@@ -106,9 +106,19 @@ Claude starts an interactive questionnaire to understand your project.
 
 **Claude:**
 ```
-[Displays ASCII header - see "Implementation Details for Claude" section below]
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
 
-I'll help you set up the Claude memory system for your project!
+Welcome! I'll help you set up your project memory system.
 
 I don't see a project brief yet, so let me ask you a few questions to
 understand what you're building.
@@ -224,7 +234,19 @@ Claude reads the existing project brief, analyzes the requirements, and recommen
 
 **Claude:**
 ```
-[Displays ASCII header - see "Implementation Details for Claude" section below]
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Welcome! I'll help you set up your project memory system.
 
 I found your project brief! Let me analyze it...
 
@@ -348,7 +370,19 @@ Claude detects what's already configured and suggests what's missing.
 
 **Claude:**
 ```
-[Displays ASCII header - see "Implementation Details for Claude" section below]
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Welcome! I'll help you set up your project memory system.
 
 I found your project brief and partial .claude/ setup!
 
@@ -432,7 +466,19 @@ Claude validates the existing setup and offers to optimize or update.
 
 **Claude:**
 ```
-[Displays ASCII header - see "Implementation Details for Claude" section below]
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Welcome! I'll help you set up your project memory system.
 
 ✅ Your Claude memory system is already fully configured!
 
@@ -472,9 +518,18 @@ D. Everything looks good, I'm ready to build!
 
 ### When User Types "setup"
 
-**FIRST: Display the ASCII Header**
+**CRITICAL: Suppress Initial Analysis Output**
 
-Always display this header when the user types `setup`:
+When the user types `setup`, DO NOT output any preliminary analysis messages like:
+- "Perfect! I can see this is a new project..."
+- "Let me analyze your codebase..."
+- "I notice you have..."
+
+Instead, IMMEDIATELY show the ASCII header and then proceed with analysis silently.
+
+**FIRST: Display the ASCII Header and Introduction**
+
+Always display this header FIRST when the user types `setup` - no other text before it:
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
@@ -489,9 +544,14 @@ Always display this header when the user types `setup`:
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
+Welcome! I'll help you set up your project memory system.
 ```
 
 **Note:** The ASCII art spells "CLAUDE MEMORY" in a stylized block font.
+
+**THEN: Analyze Environment Silently and Present Findings**
+
+After showing the header and welcome message, silently analyze the project environment and then present what you found.
 
 **THEN: Detect Environment**
 
@@ -933,7 +993,19 @@ Installing: auth-better-auth.md
 
 **Claude:**
 ```
-[Displays ASCII header - see "Implementation Details for Claude" section below]
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+Welcome! I'll help you set up your project memory system.
 ```
 
 *[Detects no project brief]*

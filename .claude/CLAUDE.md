@@ -47,7 +47,11 @@ You (Claude):
 
 ### `setup`
 
-**IMPORTANT:** When you see the `setup` command, DO NOT output any analysis or commentary first. IMMEDIATELY display the ASCII header from `.claude/guides/setup-workflow.md`, then silently analyze the environment and present findings.
+**IMPORTANT:** When you see the `setup` command:
+1. DO NOT output any analysis or commentary first
+2. IMMEDIATELY display the ASCII header from `.claude/guides/setup-workflow.md`
+3. Silently analyze the environment and present findings
+4. If questionnaire needed, follow the formatting rules in `.claude/guides/setup-workflow.md` (ask ONE question at a time, detect project name from folder, format questions on separate lines)
 
 This single command intelligently handles all scenarios:
 

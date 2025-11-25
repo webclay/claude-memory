@@ -571,7 +571,7 @@ After showing the header and welcome message, silently analyze the project envir
 **Detected:** Empty directory or minimal files
 
 **Process:**
-- Start tech stack questionnaire (see tech-stack-questionnaire.md)
+- Start tech stack questionnaire (see tech-stack-questionnaire.md and formatting rules below)
 - Generate THREE documents based on answers:
   - `/docs/prd.md` - Full Product Requirements Document for humans (includes Implementation Plan)
   - `.claude/projectbrief.md` - Concise project brief for AI
@@ -579,6 +579,68 @@ After showing the header and welcome message, silently analyze the project envir
 - Recommend stack modules
 - Copy all required files
 - Initialize complete system
+
+#### **Questionnaire Formatting Rules**
+
+**CRITICAL:** When asking questions during setup, follow these formatting rules to avoid overwhelming users:
+
+1. **Project Name Detection**
+   - DO NOT ask for project name
+   - Automatically detect from the parent folder name of `.claude/`
+   - Example: If path is `/Users/user/my-project/.claude/`, project name is "my-project"
+   - Present it to user: "Project name: **my-project**"
+
+2. **One Question at a Time**
+   - NEVER ask multiple questions in a single message
+   - Wait for user's answer before asking the next question
+   - Exception: Related sub-items within the same question are OK
+
+3. **Question Formatting**
+   - Each question number should be on its own line
+   - Add a blank line between questions for readability
+   - Format: `Question X: [question text]` on one line, then options/details below
+
+4. **Example of CORRECT formatting:**
+   ```
+   📋 Project Basics
+
+   Project name: **my-saas-app** (detected from folder)
+
+   Question 1: In 2-3 sentences, what does your project do?
+
+   [User answers]
+
+   Question 2: Who is your target audience/users?
+
+   [User answers]
+
+   Question 3: What's the core problem this solves?
+   ```
+
+5. **Example of INCORRECT formatting (DO NOT DO THIS):**
+   ```
+   📋 Project Basics
+   Question 1: What is your project name? Question 2: In 2-3 sentences, what does your project do? Question 3: Who is your target audience/users? Question 4: What's the core problem this solves?
+   ```
+
+6. **Multi-part Questions**
+   - If a question has multiple parts (like selecting features), group them together
+   - Use bullet points or checkboxes for clarity
+   - Example:
+     ```
+     Question 5: What are the key features you'll need? (Select all that apply)
+
+     - Real-time updates
+     - User authentication
+     - File uploads
+     - Payment processing
+     - Email notifications
+     ```
+
+7. **Progressive Disclosure**
+   - Start with basic questions
+   - Ask follow-up questions based on previous answers
+   - Don't ask about features if they're not relevant to the project type
 
 ---
 

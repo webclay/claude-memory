@@ -1,7 +1,8 @@
 # Better Auth - Authentication Patterns
 
 **Purpose:** Comprehensive guide for implementing authentication with Better Auth
-**Last Updated:** 2025-01-12
+**Last Updated:** 2025-11-25
+**Current Version:** 1.4
 **Official Docs:** https://www.better-auth.com
 
 ---
@@ -14,9 +15,11 @@ Better Auth is a modern, framework-agnostic authentication library for TypeScrip
 - Email & password authentication
 - Social OAuth providers (Google, GitHub, Apple, etc.)
 - Extensible via plugins (Magic Link, Email OTP, Passkey, 2FA, etc.)
-- Session management with secure defaults
+- Session management with secure defaults (now supports stateless mode!)
 - CSRF protection built-in
 - Framework adapters (Next.js, Remix, SvelteKit, TanStack Start, etc.)
+- Custom OAuth state passing for referral tracking
+- SCIM provisioning for enterprise identity management
 
 ---
 
@@ -32,11 +35,42 @@ The general setup process involves:
 1. Install Better Auth package
 2. Configure environment variables (secret, URL, database)
 3. Create auth instance with configuration
-4. Generate database schema using CLI
+4. Generate database schema using CLI (optional - see Stateless Mode below)
 5. Set up server handler for your framework
 6. Create client instance
 
 **Note**: Installation commands and CLI tools may change. Always refer to the official docs above for the current setup method.
+
+### NEW in v1.4: Stateless Authentication
+
+You can now omit the database configuration entirely for session management without persistence:
+
+```ts
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // No database required!
+  emailAndPassword: {
+    enabled: true,
+  },
+  // Sessions managed via JWT only
+});
+```
+
+**Stateless endpoints available:**
+- `GET /api/auth/access-token` - Get access token
+- `GET /api/auth/account-info` - Get account information
+- `GET /api/auth/refresh-token` - Refresh tokens
+
+**When to use stateless mode:**
+- Serverless/edge environments where database connections are expensive
+- High-scale applications prioritizing speed over centralized session control
+- Microservices architectures with token-based auth
+
+**Trade-offs:**
+- ✅ No database overhead, faster responses
+- ❌ Can't centrally revoke sessions (must wait for token expiry)
+- ❌ No session activity tracking
 
 ### Configuration Example
 
@@ -46,7 +80,7 @@ Create `lib/auth.ts` (or `auth.ts` in project root):
 import { betterAuth } from "better-auth";
 
 export const auth = betterAuth({
-  // Database configuration
+  // Database configuration (optional in v1.4+, omit for stateless mode)
   database: {
     // Auto-configured if using DATABASE_URL env var
     // Or manually specify connection details
@@ -64,6 +98,18 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days (in seconds)
     updateAge: 60 * 60 * 24, // 1 day (extend expiry after this duration)
+    cookieCache: {
+      enabled: true, // NEW in v1.4: JWE cookie caching for enhanced security
+      maxAge: 60 * 5, // 5 minutes
+    },
+  },
+
+  // NEW in v1.4: Advanced options
+  advanced: {
+    generateId: "uuid", // v1.4: Now supports UUID for primary IDs (alongside "nanoid")
+    cookieChunking: {
+      enabled: true, // v1.4: Automatic cookie chunking to prevent size errors
+    },
   },
 
   // CSRF protection (automatic, but can configure trusted origins)
@@ -468,11 +514,147 @@ export function GitHubSignInButton() {
 }
 ```
 
+### NEW in v1.4: Custom OAuth State
+
+Pass custom data through OAuth flows (useful for referral tracking, source attribution, etc.):
+
+```tsx
+"use client";
+
+import { authClient } from "@/lib/auth-client";
+
+export function GoogleSignInWithReferral({ referralCode }: { referralCode?: string }) {
+  const handleGoogleSignIn = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
+      // NEW: Pass custom state through OAuth flow
+      state: {
+        referralCode,
+        source: "landing-page",
+        campaign: "spring-2024",
+      },
+    });
+  };
+
+  return (
+    <button onClick={handleGoogleSignIn}>
+      Sign in with Google
+    </button>
+  );
+}
+```
+
+**Access custom state in hooks/middleware:**
+
+```ts
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  hooks: {
+    after: [
+      {
+        matcher: (context) => context.path === "/sign-in/social",
+        handler: async (context) => {
+          // Access custom OAuth state
+          const { referralCode, source, campaign } = context.body.state || {};
+
+          // Store referral info, track attribution, etc.
+          if (referralCode && context.session?.user) {
+            await db.referral.create({
+              userId: context.session.user.id,
+              referralCode,
+              source,
+              campaign,
+            });
+          }
+        },
+      },
+    ],
+  },
+});
+```
+
 ---
 
 ## Plugins
 
 Better Auth uses a plugin system for extended functionality.
+
+**⚠️ BREAKING CHANGE in v1.4:** Passkey plugin moved to separate package `@better-auth/passkey`
+
+### NEW in v1.4: Device Authorization Plugin
+
+Enables OAuth 2.0 Device Authorization Grant for input-constrained devices (smart TVs, IoT devices, CLI tools):
+
+```ts
+import { betterAuth } from "better-auth";
+import { deviceAuthorization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    deviceAuthorization({
+      // Configuration options
+      deviceCodeExpiresIn: 600, // 10 minutes
+      interval: 5, // Polling interval in seconds
+    }),
+  ],
+});
+```
+
+**Client usage (for device):**
+
+```ts
+// Step 1: Request device code
+const { deviceCode, userCode, verificationUri } = await authClient.deviceAuthorization.request({
+  clientId: "your-client-id",
+});
+
+// Display to user:
+// "Go to https://yourapp.com/activate"
+// "Enter code: ABCD-1234"
+console.log(`Go to ${verificationUri} and enter: ${userCode}`);
+
+// Step 2: Poll for authorization
+const { accessToken } = await authClient.deviceAuthorization.poll({
+  deviceCode,
+});
+```
+
+### NEW in v1.4: SCIM Provisioning Plugin
+
+For enterprise identity management and multi-domain scenarios:
+
+```ts
+import { betterAuth } from "better-auth";
+import { scim } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    scim({
+      // SCIM 2.0 endpoints for user provisioning
+      baseUrl: "/scim/v2",
+    }),
+  ],
+});
+```
+
+**Supported SCIM operations:**
+- User creation and updates
+- Group management
+- Bulk operations
+- Resource filtering
+
+**Use cases:**
+- Enterprise SSO integration
+- Automated user provisioning from identity providers
+- Multi-tenant applications with centralized identity management
 
 ### Email OTP Plugin
 
@@ -810,7 +992,8 @@ export function ForgotPasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await authClient.forgetPassword({
+    // v1.4 BREAKING CHANGE: Renamed from forgetPassword to requestPasswordReset
+    await authClient.requestPasswordReset({
       email,
       redirectTo: "/reset-password", // Where to redirect after clicking link
     });
@@ -1070,10 +1253,287 @@ See the official docs for the latest CLI commands and options.
 
 ---
 
+---
+
+## v1.4 Breaking Changes & Migration Guide
+
+If upgrading from an earlier version, note these breaking changes:
+
+### 1. Password Reset API Renamed
+
+```ts
+// ❌ OLD (deprecated)
+await authClient.forgetPassword({ email });
+
+// ✅ NEW (v1.4+)
+await authClient.requestPasswordReset({ email });
+```
+
+### 2. Passkey Plugin Moved to Separate Package
+
+```bash
+# Install new package
+npm install @better-auth/passkey
+```
+
+```ts
+// ❌ OLD
+import { passkey } from "better-auth/plugins";
+
+// ✅ NEW
+import { passkey } from "@better-auth/passkey";
+```
+
+### 3. Account Info Endpoint Changed
+
+```ts
+// ❌ OLD: POST request
+POST /api/auth/account-info
+
+// ✅ NEW: GET request
+GET /api/auth/account-info
+```
+
+### 4. Email Verification Flow Restructured
+
+```ts
+// ❌ OLD (removed)
+await authClient.sendChangeEmailVerification();
+
+// ✅ NEW
+await authClient.emailVerification.sendVerificationEmail();
+```
+
+### 5. Configuration Changes
+
+```ts
+export const auth = betterAuth({
+  advanced: {
+    // ❌ OLD (removed)
+    generateId: "...",
+
+    // ✅ NEW: Use specific ID type
+    generateId: "uuid", // or "nanoid" or "serial"
+  },
+
+  // For numeric IDs:
+  // ❌ OLD
+  advanced: {
+    useNumberId: true,
+  },
+
+  // ✅ NEW
+  advanced: {
+    generateId: "serial",
+  },
+});
+```
+
+### 6. OIDC Configuration
+
+```ts
+// ❌ OLD
+socialProviders: {
+  oidc: {
+    redirectURLs: [...], // typo
+  },
+}
+
+// ✅ NEW
+socialProviders: {
+  oidc: {
+    redirectUrls: [...], // correct casing
+  },
+}
+```
+
+**Note:** This requires migration. Update your database and config.
+
+### 7. Plugin Hook Context Changes
+
+Multiple plugins now use `ctx` instead of `request`:
+
+```ts
+// ❌ OLD
+hooks: {
+  after: [{
+    handler: async (context) => {
+      const data = context.request.body;
+    }
+  }]
+}
+
+// ✅ NEW
+hooks: {
+  after: [{
+    handler: async (ctx) => {
+      const data = ctx.body;
+    }
+  }]
+}
+```
+
+### 8. API Key Mock Sessions
+
+```ts
+// ❌ OLD: Enabled by default
+
+// ✅ NEW: Disabled by default for security
+// Explicitly enable if needed for testing:
+export const auth = betterAuth({
+  plugins: [
+    apiKey({
+      enableMockSessions: true, // Must be explicitly enabled
+    }),
+  ],
+});
+```
+
+---
+
+## Performance Improvements in v1.4
+
+### Database Join Optimization (Experimental)
+
+Enable experimental join optimization for 2-3x faster queries:
+
+```ts
+export const auth = betterAuth({
+  database: {
+    provider: "postgres", // or your DB provider
+    // Enable experimental performance improvements
+    experimental: {
+      useJoins: true, // Improves 50+ endpoints with database joins
+    },
+  },
+});
+```
+
+**Benefits:**
+- 2-3x latency reduction on session lookups
+- Optimized user data fetching
+- Reduced database round trips
+
+### Secondary Storage for API Keys
+
+Speed up API key lookups:
+
+```ts
+import { apiKey } from "better-auth/plugins";
+import { Redis } from "@upstash/redis";
+
+export const auth = betterAuth({
+  plugins: [
+    apiKey({
+      // Use Redis for faster key lookups
+      secondaryStorage: {
+        get: async (key) => {
+          return await redis.get(`api_key:${key}`);
+        },
+        set: async (key, value, ttl) => {
+          await redis.set(`api_key:${key}`, value, { ex: ttl });
+        },
+      },
+    }),
+  ],
+});
+```
+
+### JWT Key Rotation Without Downtime
+
+```ts
+export const auth = betterAuth({
+  jwt: {
+    // Add new key while keeping old one active
+    keys: [
+      process.env.JWT_SECRET_NEW!, // Will be used for signing
+      process.env.JWT_SECRET_OLD!, // Still validates old tokens
+    ],
+    rotation: {
+      enabled: true,
+      gracePeriod: 60 * 60 * 24 * 7, // 7 days to fully migrate
+    },
+  },
+});
+```
+
+---
+
+## Enhanced Security Features in v1.4
+
+### Enhanced Email Change Security
+
+Require confirmation via current email before sending verification to new email:
+
+```ts
+export const auth = betterAuth({
+  emailAndPassword: {
+    changeEmail: {
+      requireCurrentEmailConfirmation: true, // NEW in v1.4
+      sendVerificationToNewEmail: true,
+      sendNotificationToOldEmail: true,
+    },
+  },
+});
+```
+
+### OIDC RP-Initiated Logout
+
+Trigger provider-side logout when user signs out:
+
+```ts
+export const auth = betterAuth({
+  socialProviders: {
+    oidc: {
+      // ... your OIDC config
+      rpInitiatedLogout: true, // NEW: Logout at provider too
+    },
+  },
+});
+```
+
+### Automatic Server-Side IP Detection
+
+```ts
+// v1.4: IP detection now automatic from request headers
+// No additional configuration needed!
+
+// Automatically reads from:
+// - X-Forwarded-For
+// - X-Real-IP
+// - CF-Connecting-IP (Cloudflare)
+// - True-Client-IP (Akamai)
+```
+
+---
+
+## Bundle Size Optimization in v1.4
+
+For custom database adapters, use minimal build:
+
+```ts
+// ❌ OLD: Full bundle (~500kb)
+import { betterAuth } from "better-auth";
+
+// ✅ NEW: Minimal bundle for custom adapters
+import { betterAuth } from "better-auth/minimal";
+
+// Only include what you need
+export const auth = betterAuth({
+  // Custom adapter only
+  database: customAdapter,
+});
+```
+
+**Savings:** Significant bundle size reduction when not using built-in adapters.
+
+---
+
 ## Resources
 
 - **Official Docs:** https://www.better-auth.com
 - **GitHub:** https://github.com/better-auth/better-auth
+- **v1.4 Release Notes:** https://www.better-auth.com/blog/1-4
 - **Discord:** https://discord.gg/better-auth (check official docs for link)
 - **Examples:** https://github.com/better-auth/better-auth/tree/main/examples
 

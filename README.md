@@ -1,11 +1,78 @@
-# Claude Memory System
+```
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   ░█▀▀░█░░░█▀█░█░█░█▀▄░█▀▀░░░█▄█░█▀▀░█▄█░█▀█░█▀▄░█░█             ║
+║   ░█░░░█░░░█▀█░█░█░█░█░█▀▀░░░█░█░█▀▀░█░█░█░█░█▀▄░░█░             ║
+║   ░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░▀░░▀░             ║
+║                                                                   ║
+║              🚀  Intelligent Setup & Configuration  🚀            ║
+║                                                                   ║
+║   One command to initialize your entire development environment   ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 > A smart helper that teaches Claude Code exactly how to build your app, so you never have to explain the same thing twice.
 
-**Version:** 1.0.0
-**Last Updated:** 2025-01-12
+**Version:** 1.1.0
+**Last Updated:** 2025-11-25
 **Author:** Manuel Merz
 **License:** MIT
+
+---
+
+## Changelog
+
+### Version 1.1.0 - November 25, 2025
+
+**Stack Updates - Latest Library Versions:**
+
+#### Better Auth v1.4
+- ✨ **Stateless Authentication** - Database-optional session management with JWT-only mode
+- ✨ **Custom OAuth State** - Pass referral codes and attribution data through OAuth flows
+- ✨ **Device Authorization Plugin** - OAuth 2.0 Device Grant for smart TVs and IoT devices
+- ✨ **SCIM Provisioning Plugin** - Enterprise identity management for multi-domain scenarios
+- ⚡ **Performance Improvements** - Experimental database join optimization (2-3x faster)
+- 🔐 **Enhanced Security** - JWE cookie caching, JWT key rotation, improved email change security
+- 🔧 **Cookie Chunking** - Automatic handling to prevent size errors
+- 🆔 **UUID Support** - Primary key support for UUID alongside nanoid
+- 📦 **Bundle Optimization** - Minimal build option for custom database adapters
+- ⚠️ **Breaking Changes** - Passkey plugin moved to `@better-auth/passkey`, API naming updates
+- 📚 Full documentation: `.claude/stacks/auth/auth-better-auth.md`
+
+#### Prisma ORM v7.0
+- 🚀 **3x Faster Query Execution** - Rust-free client rebuilt in TypeScript
+- 📦 **90% Smaller Bundle Size** - Significantly reduced client footprint
+- ⚡ **70% Faster Type Checking** - Optimized type system (98% fewer types to evaluate)
+- 🔧 **Edge-Optimized** - Better compatibility with Vercel Edge and Cloudflare Workers
+- 🗄️ **Prisma Postgres** - One-command database provisioning (`npm create db`)
+- 📝 **Prisma Config File** - Dynamic configuration with JavaScript/TypeScript support
+- 🎨 **Mapped Enums** - Long-requested feature for enum value mapping
+- 🤖 **MCP Server Integration** - AI agent support (local & remote) for schema assistance
+- ⚠️ **Breaking Changes** - Provider syntax changed from `"prisma-client-js"` to `"prisma-client"`
+- 📍 **Generated Code Location** - Now defaults to source directory instead of `node_modules`
+- 📚 Full documentation: `.claude/stacks/database/database-prisma.md`
+
+**Key Highlights:**
+- Both libraries now offer significantly improved performance for serverless and edge environments
+- Enhanced AI integration capabilities (Prisma MCP, Better Auth stateless mode)
+- Better developer experience with improved type systems and bundle sizes
+- Enterprise-ready features (SCIM provisioning, advanced security options)
+
+---
+
+### Version 1.0.0 - January 12, 2025
+
+**Initial Release:**
+- 🎉 Claude Memory system launched
+- 📋 Intelligent `setup` command for project initialization
+- 📚 Comprehensive stack documentation for 40+ technologies
+- ✅ Automatic task tracking and progress management
+- 🔄 Pattern consistency enforcement
+- 📖 Interactive questionnaire for new projects
+- 🔍 Automatic codebase detection for existing projects
+- 💾 Two-document system (PRD for humans, projectbrief for AI)
+- 🛠️ Support for major frameworks, databases, auth systems, and more
 
 ---
 

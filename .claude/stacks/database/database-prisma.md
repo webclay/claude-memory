@@ -1,18 +1,35 @@
 # Prisma ORM Integration Guide
 
+**Current Version:** 7.0.0
+**Last Updated:** 2025-11-25
+**Official Docs:** https://www.prisma.io/docs
+
 ## Overview
 
 Prisma is a next-generation TypeScript-first ORM that provides type-safe database access with an intuitive API. It simplifies database workflows with auto-generated queries, migrations, and a visual database browser.
+
+**Trusted by 500k+ monthly active developers globally**
 
 **Key Features:**
 - **Type-Safe**: Auto-generated types from your schema
 - **Intuitive API**: Simple, readable query syntax
 - **Auto-Completion**: Full IntelliSense support
-- **Prisma Studio**: Visual database browser
+- **Prisma Studio**: Visual database browser (refreshed in v7!)
 - **Migrations**: Declarative schema migrations
 - **Multi-Database**: PostgreSQL, MySQL, SQLite, MongoDB, SQL Server
+- **Prisma Postgres**: Managed PostgreSQL with one-command provisioning
 - **Prisma Accelerate**: Connection pooling and global caching
 - **Prisma Pulse**: Real-time database events
+- **Prisma Optimize**: Performance analysis and optimization
+- **MCP Server Integration**: AI agent support (local & remote)
+
+**NEW in v7.0:**
+- 🚀 **3x faster query execution** - Rust-free client rebuilt in TypeScript
+- 📦 **90% smaller bundle size** - Significantly reduced client footprint
+- ⚡ **70% faster type checking** - Optimized type system (98% fewer types)
+- 🔧 **Edge-optimized** - Better Vercel Edge, Cloudflare Workers compatibility
+- 📝 **Prisma Config File** - Dynamic configuration with JS/TS support
+- 🎨 **Mapped Enums** - Long-requested enum mapping feature
 
 **When to Use:**
 - Need type-safe database access
@@ -21,6 +38,7 @@ Prisma is a next-generation TypeScript-first ORM that provides type-safe databas
 - Need visual database management
 - Want simplified migrations
 - Require connection pooling for serverless
+- Building on edge platforms (Vercel Edge, Cloudflare Workers)
 
 ## Installation
 
@@ -45,6 +63,27 @@ The general setup process involves:
 
 **Note**: Installation commands and setup steps may change. Always refer to the official docs above for the current method.
 
+### NEW in v7: One-Command Prisma Postgres Setup
+
+Provision a managed PostgreSQL database instantly:
+
+```bash
+# Create a new Prisma Postgres database
+npm create db
+
+# Automatically provisions:
+# - Managed PostgreSQL instance
+# - Connection pooling
+# - Sets up DATABASE_URL in .env
+```
+
+**Prisma Postgres features:**
+- Standard PostgreSQL connection protocol (works with any PostgreSQL tool)
+- Compatible with Cloudflare Hyperdrive, TablePlus, Retool
+- Works with other ORMs (Drizzle, Kysely, etc.)
+- Built-in connection pooling for edge runtimes
+- MCP server integration for AI agents
+
 ## Schema Definition
 
 **prisma/schema.prisma**
@@ -58,8 +97,9 @@ datasource db {
 
 // Prisma Client configuration
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client" // v7 BREAKING CHANGE: Changed from "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  // v7: Generated code now defaults to source directory instead of node_modules
 }
 
 // User model
@@ -140,6 +180,14 @@ enum Role {
   USER
   ADMIN
   MODERATOR
+}
+
+// NEW in v7: Mapped Enums
+// Map enum values to different database values
+enum Status {
+  ACTIVE   @map("active")
+  INACTIVE @map("inactive")
+  PENDING  @map("pending")
 }
 ```
 
@@ -887,24 +935,214 @@ try {
 - `P1001` - Can't reach database server
 - `P1002` - Database server timeout
 
+---
+
+## NEW in v7: Prisma Config File
+
+Move project configuration from schema and `package.json` to a dedicated config file with dynamic capabilities.
+
+**prisma/prisma.config.ts** (or `.js`):
+
+```typescript
+import { defineConfig } from 'prisma';
+
+export default defineConfig({
+  // Dynamic environment variable loading
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+
+  // Generator configuration
+  generators: {
+    client: {
+      provider: 'prisma-client',
+      output: './generated/client',
+    },
+  },
+
+  // Migration settings
+  migrations: {
+    path: './migrations',
+  },
+});
+```
+
+**Benefits:**
+- Use `dotenv` or other environment loaders dynamically
+- Conditional configuration based on environment
+- Better IDE support for configuration
+- Centralized project settings
+
+**Migration from v6:**
+Your existing `schema.prisma` still works. The config file is optional but recommended for projects needing dynamic configuration.
+
+---
+
+## v7 Breaking Changes & Migration Guide
+
+### 1. Provider Syntax Changed
+
+```prisma
+// ❌ OLD (v6 and earlier)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ✅ NEW (v7+)
+generator client {
+  provider = "prisma-client"
+}
+```
+
+**Why:** The client is now Rust-free and fully TypeScript/ESM-compatible.
+
+### 2. Generated Code Location
+
+**v6 behavior:** Generated client stored in `node_modules/.prisma/client`
+
+**v7 behavior:** Generated client defaults to your source code directory
+
+```prisma
+generator client {
+  provider = "prisma-client"
+  output = "./src/generated/client" // Explicit control recommended
+}
+```
+
+**Benefits:**
+- Development tools and file watchers can react to schema changes
+- No need to stop dev processes when schema updates
+- Better version control visibility
+
+**Migration tip:** If you prefer the old behavior, explicitly set `output` to `"../node_modules/.prisma/client"`
+
+### 3. Minimum Requirements Updated
+
+- **Node.js:** Minimum version updated (check official docs for current requirement)
+- **TypeScript:** Minimum version updated (check official docs)
+
+### 4. Type System Improvements
+
+The optimized type system in v7 should be fully backward compatible, but you may notice:
+- Faster IntelliSense response times
+- Reduced TypeScript memory usage
+- Faster type checking in CI/CD
+
+**No migration needed** - these are automatic improvements!
+
+---
+
+## v7 Performance Benchmarks
+
+Based on the official v7 announcement:
+
+| Metric | Improvement |
+|--------|-------------|
+| **Query execution speed** | 3x faster |
+| **Bundle size** | 90% smaller |
+| **Type evaluation** | 98% fewer types |
+| **Full type check** | 70% faster |
+| **CPU consumption** | Significantly reduced |
+| **Memory usage** | Significantly reduced |
+
+**Real-world impact:**
+- Faster application startup
+- Better cold start times in serverless
+- Reduced edge runtime bundle overhead
+- Faster CI/CD type checking
+
+---
+
+## MCP Server Integration (v7)
+
+Prisma now provides MCP (Model Context Protocol) servers for AI agent integration:
+
+### Local MCP Server
+
+For local development with AI assistants:
+
+```bash
+# MCP server automatically available
+# Configure your AI tool to connect to Prisma MCP server
+```
+
+### Remote MCP Server
+
+For cloud-based AI agent access:
+
+```bash
+# Available through Prisma Cloud console
+# Enables AI agents to interact with your database schema
+```
+
+**Use cases:**
+- AI-assisted schema design
+- Automated query generation
+- Database documentation generation
+- Migration suggestions
+
+---
+
+## Supported Integrations (v7)
+
+Prisma v7 has been tested and optimized for:
+
+**Frameworks:**
+- Next.js (App Router & Pages Router)
+- Remix
+- SvelteKit
+- Nuxt
+- Astro
+- Solid Start
+- Hono
+- React Router 7
+
+**Platforms:**
+- Vercel (including Edge Runtime)
+- Cloudflare Workers
+- Railway
+- Deno
+- Docker
+- GitHub Actions
+
+**Authentication:**
+- Better Auth
+- Clerk
+- NextAuth.js
+
+**Tools:**
+- Turborepo
+- TanStack Query
+- Shopify integrations
+
+---
+
 ## Resources
 
 - **Documentation**: https://www.prisma.io/docs
+- **v7 Release Notes**: https://www.prisma.io/blog/announcing-prisma-orm-7-0-0
 - **GitHub**: https://github.com/prisma/prisma
 - **Discord**: https://pris.ly/discord
 - **Prisma Studio**: `npx prisma studio`
 - **Playground**: https://playground.prisma.io/
+- **Prisma Postgres**: `npm create db`
 
 ## Summary
 
-Prisma provides type-safe database access with:
+Prisma v7 provides **significantly improved** type-safe database access with:
 
-1. **Auto-generated types** from schema
-2. **Intuitive API** with full TypeScript support
-3. **Declarative migrations** with version control
-4. **Prisma Studio** for visual database management
-5. **Multi-database** support (Postgres, MySQL, SQLite, MongoDB)
-6. **Connection pooling** via Prisma Accelerate
-7. **Real-time events** via Prisma Pulse
+1. **3x faster queries** - Rust-free TypeScript implementation
+2. **90% smaller bundles** - Optimized for edge and serverless
+3. **Auto-generated types** from schema (98% fewer types to evaluate)
+4. **Intuitive API** with full TypeScript support
+5. **Declarative migrations** with version control
+6. **Prisma Studio** for visual database management (refreshed UI)
+7. **Multi-database** support (Postgres, MySQL, SQLite, MongoDB, SQL Server)
+8. **Prisma Postgres** with one-command provisioning
+9. **Connection pooling** via Prisma Accelerate
+10. **Real-time events** via Prisma Pulse
+11. **MCP server integration** for AI agent support
 
-Perfect for TypeScript projects needing type-safe database access with excellent developer experience and minimal boilerplate.
+Perfect for TypeScript projects needing type-safe database access with excellent developer experience, minimal boilerplate, and **exceptional performance**.

@@ -362,6 +362,26 @@ try {
 
 ---
 
+## Feature Dependencies
+
+> **Purpose:** This map helps Claude understand how features connect. When working on one feature, Claude will check this map and warn you if changes might impact other areas.
+
+### Dependency Map
+
+- **Database Schema** → All features (foundational - changes here affect everything)
+- **Authentication** → Dashboard, User Settings, Protected Routes, Payments
+- **UI Components** → All pages and features
+- **[Feature 1]** → [Features that depend on it]
+- **[Feature 2]** → [Features that depend on it]
+- **Payments** → User Settings, Subscription Pages, Access Control
+
+### Notes
+- Update this map when adding new features
+- Claude will reference this before making changes
+- Helps prevent breaking changes across features
+
+---
+
 ## Known Constraints & Considerations
 
 ### Performance

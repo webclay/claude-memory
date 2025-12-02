@@ -1094,6 +1094,35 @@ Start with: "Set up the database with Neon and Prisma"
 
 ---
 
+## Setup Completion Message
+
+After ANY successful setup (new project, existing codebase, or partial setup), always show this completion message:
+
+```
+## Setup Complete!
+
+Your project is now configured with Claude Memory.
+
+### Available Commands
+Type `/project:` to see all commands, or use these directly:
+
+| Command | Description |
+|---------|-------------|
+| `/project:status` | See current task progress |
+| `/project:next` | Get next task suggestion |
+| `/project:done` | Mark current task complete |
+| `/project:terminate` | Kill all dev servers |
+| `/project:blockers` | See blocked tasks |
+| `/project:help` | Show all commands |
+
+### Next Steps
+1. Review your `projectbrief.md`
+2. Check `tasks.md` for implementation plan
+3. Start working - just tell me what to build!
+```
+
+---
+
 ## Update Instructions for Claude
 
 Replace all previous references to:

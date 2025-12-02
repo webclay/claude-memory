@@ -14,14 +14,70 @@
 
 > A smart helper that teaches Claude Code exactly how to build your app, so you never have to explain the same thing twice.
 
-**Version:** 1.1.0
-**Last Updated:** 2025-11-25
+**Version:** 1.2.0
+**Last Updated:** 2025-12-02
 **Author:** Manuel Merz
 **License:** MIT
 
 ---
 
 ## Changelog
+
+### Version 1.2.0 - December 2, 2025
+
+**CLAUDE.md Optimization - Based on Best Practices:**
+
+Following Kyle Mistele's research on effective CLAUDE.md files, this release dramatically improves how Claude reads and follows project instructions.
+
+#### Key Changes
+
+| Change | Before | After |
+|--------|--------|-------|
+| **CLAUDE.md size** | 510 lines | 65 lines |
+| **Commands** | Keyword-based | Native slash commands `/project:*` |
+| **Code style rules** | 120+ lines inline | Single line: "run ultracite" |
+| **Task management** | Pre-generated tasks | Dynamic creation with Feature Dependencies |
+
+#### New Native Slash Commands
+
+Type `/project:` to see all available commands:
+
+| Command | Description |
+|---------|-------------|
+| `/project:setup` | Initialize or configure project |
+| `/project:status` | Show current task progress |
+| `/project:next` | Get suggestion for next task |
+| `/project:done` | Mark current task as complete |
+| `/project:terminate` | Kill all dev servers for clean restart |
+| `/project:blockers` | List blocked tasks and dependencies |
+| `/project:help` | Show all available commands |
+
+#### New Files
+
+- **`.claude/mistakes.md`** - Tracks common AI mistakes to avoid (auto-updated when patterns emerge)
+- **`.claude/commands/`** - Native slash command definitions
+
+#### Feature Dependencies System
+
+The projectbrief template now includes a **Feature Dependencies** section that maps how features connect. When you work on one feature, Claude checks this map and warns you if changes might impact other areas.
+
+```markdown
+## Feature Dependencies
+- **Database Schema** → All features (foundational)
+- **Authentication** → Dashboard, User Settings, Protected Routes
+- **Payments** → User Settings, Subscription Pages
+```
+
+#### Why This Matters
+
+From Anthropic's research: Claude ignores CLAUDE.md content it deems irrelevant. Fewer, more focused instructions = better instruction following.
+
+- ✅ Progressive disclosure - Claude reads specialist files only when needed
+- ✅ No content duplication - single source of truth for each topic
+- ✅ Impact awareness - warns about side effects before making changes
+- ✅ Native slash commands - proper IDE integration
+
+---
 
 ### Version 1.1.0 - November 25, 2025
 
@@ -109,6 +165,15 @@ Claude Memory creates a hidden `.claude/` folder in your project that contains:
 │
 ├── tasks.md                   → What needs to be done
 │                                Auto-updated as you build
+│
+├── mistakes.md                → Common AI mistakes to avoid
+│                                Auto-updated when patterns emerge
+│
+├── commands/                  → Native slash commands
+│   ├── setup.md               → /project:setup
+│   ├── status.md              → /project:status
+│   ├── done.md                → /project:done
+│   └── ...                    → And more
 │
 ├── Guides for specific tools:
 │   ├── database-*.md          → How to work with your database
@@ -626,12 +691,13 @@ Can you update the projectbrief?"
 
 → Claude updates memory and uses the new approach going forward!
 
-**5. Use simple commands for common tasks**
+**5. Use slash commands for common tasks**
 
-- `"show me what's left to build"` → See your task list
-- `"what did we work on last time?"` → Review recent progress
-- `"save this work"` → Commit changes with proper tracking
-- `"update"` → Get latest Claude Memory improvements
+- `/project:status` → See current task progress
+- `/project:next` → Get suggestion for next task
+- `/project:done` → Mark current task complete
+- `/project:terminate` → Kill all dev servers
+- `/project:help` → See all available commands
 
 **6. When stuck, ask for options**
 

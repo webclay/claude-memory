@@ -61,28 +61,29 @@ Following Kyle Mistele's research on effective CLAUDE.md files, this release dra
 | Change | Before | After |
 |--------|--------|-------|
 | **CLAUDE.md size** | 510 lines | 65 lines |
-| **Commands** | Keyword-based | Native slash commands `/project:*` |
+| **Commands** | Keyword-based | Native commands `cm *` |
 | **Code style rules** | 120+ lines inline | Single line: "run ultracite" |
 | **Task management** | Pre-generated tasks | Dynamic creation with Feature Dependencies |
 
-#### New Native Slash Commands
+#### New Native Commands
 
-Type `/project:` to see all available commands:
+Type `cm` followed by a command name:
 
 | Command | Description |
 |---------|-------------|
-| `/project:setup` | Initialize or configure project |
-| `/project:status` | Show current task progress |
-| `/project:next` | Get suggestion for next task |
-| `/project:done` | Mark current task as complete |
-| `/project:terminate` | Kill all dev servers for clean restart |
-| `/project:blockers` | List blocked tasks and dependencies |
-| `/project:help` | Show all available commands |
+| `cm setup` | Initialize or configure project |
+| `cm status` | Show current task progress |
+| `cm next` | Get suggestion for next task |
+| `cm done` | Mark current task as complete |
+| `cm terminate` | Kill all dev servers for clean restart |
+| `cm blockers` | List blocked tasks and dependencies |
+| `cm update` | Check for Claude Memory updates |
+| `cm help` | Show all available commands |
 
 #### New Files
 
 - **`.claude/mistakes.md`** - Tracks common AI mistakes to avoid (auto-updated when patterns emerge)
-- **`.claude/commands/`** - Native slash command definitions
+- **`.claude/cm/`** - Native command definitions
 
 #### Feature Dependencies System
 
@@ -102,7 +103,7 @@ From Anthropic's research: Claude ignores CLAUDE.md content it deems irrelevant.
 - ✅ Progressive disclosure - Claude reads specialist files only when needed
 - ✅ No content duplication - single source of truth for each topic
 - ✅ Impact awareness - warns about side effects before making changes
-- ✅ Native slash commands - proper IDE integration
+- ✅ Native commands - proper IDE integration
 
 ---
 
@@ -196,10 +197,10 @@ Claude Memory creates a hidden `.claude/` folder in your project that contains:
 ├── mistakes.md                → Common AI mistakes to avoid
 │                                Auto-updated when patterns emerge
 │
-├── commands/                  → Native slash commands
-│   ├── setup.md               → /project:setup
-│   ├── status.md              → /project:status
-│   ├── done.md                → /project:done
+├── cm/                        → Native commands
+│   ├── setup.md               → cm setup
+│   ├── status.md              → cm status
+│   ├── done.md                → cm done
 │   └── ...                    → And more
 │
 ├── Guides for specific tools:
@@ -718,13 +719,14 @@ Can you update the projectbrief?"
 
 → Claude updates memory and uses the new approach going forward!
 
-**5. Use slash commands for common tasks**
+**5. Use commands for common tasks**
 
-- `/project:status` → See current task progress
-- `/project:next` → Get suggestion for next task
-- `/project:done` → Mark current task complete
-- `/project:terminate` → Kill all dev servers
-- `/project:help` → See all available commands
+- `cm status` → See current task progress
+- `cm next` → Get suggestion for next task
+- `cm done` → Mark current task complete
+- `cm terminate` → Kill all dev servers
+- `cm update` → Check for updates
+- `cm help` → See all available commands
 
 **6. When stuck, ask for options**
 

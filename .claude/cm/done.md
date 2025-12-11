@@ -31,5 +31,5 @@ Reason: [Why this task is recommended]
 Would you like to:
 A. Commit these changes
 B. Start the suggested task
-C. See all available tasks (/project:next)
+C. See all available tasks (cm next)
 ```

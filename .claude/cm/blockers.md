@@ -31,5 +31,5 @@ Recommendations:
 2. [Other actionable suggestion]
 
 Unblocked tasks available: [count]
-Run /project:next to see available tasks
+Run cm next to see available tasks
 ```

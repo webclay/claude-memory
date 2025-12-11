@@ -28,6 +28,6 @@ Next Up:
 - [Next available task based on dependencies]
 
 Quick Actions:
-- /project:done - Mark current task complete
-- /project:next - See task recommendations
+- cm done - Mark current task complete
+- cm next - See task recommendations
 ```

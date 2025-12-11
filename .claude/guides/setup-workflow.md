@@ -1104,16 +1104,17 @@ After ANY successful setup (new project, existing codebase, or partial setup), a
 Your project is now configured with Claude Memory.
 
 ### Available Commands
-Type `/project:` to see all commands, or use these directly:
+Type `cm` followed by a command name:
 
 | Command | Description |
 |---------|-------------|
-| `/project:status` | See current task progress |
-| `/project:next` | Get next task suggestion |
-| `/project:done` | Mark current task complete |
-| `/project:terminate` | Kill all dev servers |
-| `/project:blockers` | See blocked tasks |
-| `/project:help` | Show all commands |
+| `cm status` | See current task progress |
+| `cm next` | Get next task suggestion |
+| `cm done` | Mark current task complete |
+| `cm terminate` | Kill all dev servers |
+| `cm blockers` | See blocked tasks |
+| `cm update` | Check for updates |
+| `cm help` | Show all commands |
 
 ### Next Steps
 1. Review your `projectbrief.md`

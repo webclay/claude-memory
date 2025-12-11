@@ -49,16 +49,17 @@ For large tasks with multiple steps (migrations, fixing many errors, complex bui
 - Run `npx ultracite fix` before committing
 - Use **camelCase** for all TypeScript/JavaScript variables and functions (not database fields)
 
-## Slash Commands
+## Commands
 
-Type `/project:` to see all available commands:
+Type `cm` followed by a command name:
 
 | Command | Action |
 |---------|--------|
-| `/project:setup` | Initialize/configure project |
-| `/project:status` | Show task progress |
-| `/project:next` | Suggest next task |
-| `/project:done` | Mark current task complete |
-| `/project:terminate` | Kill all dev servers |
-| `/project:blockers` | List blocked tasks |
-| `/project:help` | Show all commands |
+| `cm setup` | Initialize/configure project |
+| `cm status` | Show task progress |
+| `cm next` | Suggest next task |
+| `cm done` | Mark current task complete |
+| `cm terminate` | Kill all dev servers |
+| `cm blockers` | List blocked tasks |
+| `cm update` | Check for updates |
+| `cm help` | Show all commands |

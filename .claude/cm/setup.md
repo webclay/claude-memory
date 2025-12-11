@@ -27,11 +27,12 @@ Setup Complete!
 Your project is now configured with Claude Memory.
 
 Available Commands:
-- /project:status  - See project progress
-- /project:next    - Get next task suggestion
-- /project:done    - Complete current task
-- /project:terminate - Kill dev servers
-- /project:help    - See all commands
+- cm status    - See project progress
+- cm next      - Get next task suggestion
+- cm done      - Complete current task
+- cm terminate - Kill dev servers
+- cm update    - Check for updates
+- cm help      - See all commands
 
 Next Steps:
 1. Review your projectbrief.md

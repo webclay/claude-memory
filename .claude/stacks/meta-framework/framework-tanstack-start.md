@@ -13,6 +13,67 @@ TanStack Start is a modern full-stack React framework built on TanStack Router. 
 
 ---
 
+## Understanding the Execution Model
+
+> **CRITICAL:** This is the #1 difference from Next.js that trips up developers.
+
+### Loaders Run on BOTH Client AND Server
+
+Unlike Next.js React Server Components, TanStack Start loaders execute on **both** the client and server:
+
+```typescript
+// This loader runs on server during SSR
+// AND on client during client-side navigation
+export const Route = createFileRoute('/posts')({
+  loader: async () => {
+    console.log('This logs on server AND client!');
+    const posts = await getPosts();
+    return { posts };
+  },
+  component: PostsList
+});
+```
+
+### No `use client` or `use server` Directives
+
+TanStack Start has **no directives**. Everything runs everywhere unless you explicitly tell it not to.
+
+### Why Database Code Breaks in Loaders
+
+```typescript
+// ❌ WRONG - This will break on the client!
+export const Route = createFileRoute('/posts')({
+  loader: async () => {
+    // Database code runs on client too, causing errors
+    const posts = await db.query.posts.findMany();
+    return { posts };
+  }
+});
+
+// ✅ CORRECT - Wrap in server function
+const getPosts = createServerFn({ method: 'GET' }).handler(async () => {
+  return await db.query.posts.findMany();
+});
+
+export const Route = createFileRoute('/posts')({
+  loader: async () => {
+    // Server function makes fetch request from client
+    const posts = await getPosts();
+    return { posts };
+  }
+});
+```
+
+### How Server Functions Work
+
+When you call a server function:
+- **On server:** Executes the code directly
+- **On client:** Makes a fetch request to the server, which executes the code
+
+This allows the same code to work seamlessly in both environments.
+
+---
+
 ## Installation and Setup
 
 **📚 Official Documentation**: [TanStack Start - Quick Start](https://tanstack.com/start/latest/docs/framework/react/quick-start)
@@ -84,6 +145,18 @@ function AboutPage() {
 }
 ```
 
+### Route File Naming Conventions
+
+Three equivalent ways to create the same route (`/todos/new`):
+
+| Style | File Path | When to Use |
+|-------|-----------|-------------|
+| Folder | `routes/todos/new/index.tsx` | Complex routes with siblings |
+| File | `routes/todos/new.tsx` | Simple standalone routes |
+| Dot notation | `routes/todos.new.tsx` | Flat file structure preference |
+
+All three create the exact same route. Choose based on project preference.
+
 ### Dynamic Routes
 
 **app/routes/posts.$postId.tsx** - Dynamic route at `/posts/:postId`
@@ -104,6 +177,8 @@ function PostDetail() {
   );
 }
 ```
+
+**Note:** The `$` prefix denotes a dynamic segment. The path `/posts/$postId` matches `/posts/123`, `/posts/abc`, etc.
 
 ### Nested Routes with Layouts
 
@@ -146,8 +221,12 @@ function Dashboard() {
 ### Root Layout
 
 **app/routes/__root.tsx** - Wraps all routes
+
+> **CRITICAL:** Must include `<Head />` and `<Scripts />` components or the app will break!
+
 ```typescript
 import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { Head, Scripts } from '@tanstack/start';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 export const Route = createRootRoute({
@@ -160,10 +239,11 @@ function RootComponent() {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>My App</title>
+        <Head />  {/* Required - handles meta tags, title, etc. */}
       </head>
       <body>
         <Outlet />
+        <Scripts />  {/* Required - handles hydration scripts */}
         <TanStackRouterDevtools position="bottom-right" />
       </body>
     </html>
@@ -175,46 +255,113 @@ function RootComponent() {
 
 ## Server Functions
 
-Server functions run exclusively on the server and are called from the client with full type safety.
+Server functions allow you to run code exclusively on the server while being callable from anywhere (client or server) with full type safety.
 
-### Basic Server Function
+### Four Types of Server Functions
+
+TanStack Start provides four different function types for controlling where code executes:
+
+```typescript
+import {
+  createServerFn,        // Server code, callable from anywhere
+  createServerOnlyFn,    // Server only, throws if called from client
+  createClientOnlyFn,    // Client only, throws if called from server
+  createIsomorphicFn     // Different behavior on client vs server
+} from '@tanstack/start';
+```
+
+| Function | Server | Client | Use Case |
+|----------|--------|--------|----------|
+| `createServerFn` | ✅ Runs directly | ✅ Makes fetch request | Database queries, API calls |
+| `createServerOnlyFn` | ✅ Runs directly | ❌ Throws error | Security-critical code that must never leak |
+| `createClientOnlyFn` | ❌ Throws error | ✅ Runs directly | Browser-only APIs (localStorage, etc.) |
+| `createIsomorphicFn` | ✅ Custom logic | ✅ Custom logic | Different implementations per environment |
+
+### Basic Server Function (Modern API)
 
 **app/api/posts.ts**
 ```typescript
 import { createServerFn } from '@tanstack/start';
+import { z } from 'zod';
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-}
-
-// Define server function
-export const getPosts = createServerFn('GET', async () => {
-  // This runs on the server only
-  const posts = await db.posts.findMany();
-  return posts;
-});
-
-export const getPost = createServerFn('GET', async (postId: string) => {
-  const post = await db.posts.findUnique({
-    where: { id: postId }
+// GET - Fetching data
+export const getPosts = createServerFn({ method: 'GET' })
+  .handler(async () => {
+    return await db.query.posts.findMany();
   });
 
-  if (!post) {
-    throw new Error('Post not found');
+// GET with parameters
+export const getPost = createServerFn({ method: 'GET' })
+  .validator(z.object({ postId: z.string() }))
+  .handler(async ({ data }) => {
+    const post = await db.query.posts.findFirst({
+      where: eq(posts.id, data.postId)
+    });
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    return post;
+  });
+
+// POST - Mutations with Zod validation
+export const createPost = createServerFn({ method: 'POST' })
+  .validator(z.object({
+    title: z.string().min(1),
+    content: z.string().min(10)
+  }))
+  .handler(async ({ data }) => {
+    const post = await db.insert(posts).values(data).returning();
+    return post[0];
+  });
+```
+
+### The `useServerFn` Hook (CRITICAL for Redirects)
+
+When server functions perform redirects, you **MUST** wrap them with `useServerFn`:
+
+```typescript
+import { useServerFn } from '@tanstack/start';
+
+// Server function that redirects
+const addTodo = createServerFn({ method: 'POST' })
+  .validator(z.object({ name: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    await db.insert(todos).values({ name: data.name, isComplete: false });
+    throw redirect({ to: '/' });  // Redirect after creation
+  });
+
+// In your component
+function AddTodoForm() {
+  // ✅ CORRECT - Wrap with useServerFn to handle redirects
+  const addTodoFn = useServerFn(addTodo);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    await addTodoFn({ data: { name: inputRef.current.value } });
+    // Redirect is handled automatically!
   }
 
-  return post;
-});
+  // ❌ WRONG - Direct call won't handle redirects properly
+  // await addTodo({ data: { name } });  // Redirect silently fails!
+}
+```
 
-export const createPost = createServerFn('POST', async (data: Omit<Post, 'id'>) => {
-  const post = await db.posts.create({
-    data
+### Isomorphic Functions
+
+For code that needs different behavior on client vs server:
+
+```typescript
+const getEnvironmentInfo = createIsomorphicFn()
+  .server(() => {
+    console.log('Running on server');
+    return { env: 'server', dbConnected: true };
+  })
+  .client(() => {
+    console.log('Running on client');
+    return { env: 'client', dbConnected: false };
   });
-
-  return post;
-});
 ```
 
 ### Using Server Functions in Routes
@@ -227,7 +374,7 @@ import { getPosts } from '@/api/posts';
 export const Route = createFileRoute('/posts')({
   component: PostsList,
   loader: async () => {
-    // Call server function during route loading
+    // Server function works in loaders - makes fetch on client, runs directly on server
     const posts = await getPosts();
     return { posts };
   }
@@ -246,43 +393,6 @@ function PostsList() {
         ))}
       </ul>
     </div>
-  );
-}
-```
-
-### Mutations with Server Functions
-
-```typescript
-import { createServerFn } from '@tanstack/start';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-export const deletePost = createServerFn('POST', async (postId: string) => {
-  await db.posts.delete({
-    where: { id: postId }
-  });
-
-  return { success: true };
-});
-
-// In component
-function PostActions({ postId }: { postId: string }) {
-  const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: () => deletePost(postId),
-    onSuccess: () => {
-      // Invalidate posts list
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    }
-  });
-
-  return (
-    <button
-      onClick={() => deleteMutation.mutate()}
-      disabled={deleteMutation.isPending}
-    >
-      {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-    </button>
   );
 }
 ```
@@ -580,6 +690,123 @@ function PostForm() {
 
       <button type="submit">Submit</button>
     </form>
+  );
+}
+```
+
+---
+
+## Data Mutations & Invalidation
+
+### Invalidating Route Data with `useRouter`
+
+After mutations, invalidate route data to refresh the UI:
+
+```typescript
+import { useRouter } from '@tanstack/react-router';
+
+function TodoItem({ todo }) {
+  const router = useRouter();
+
+  const toggleTodo = createServerFn({ method: 'POST' })
+    .validator(z.object({ id: z.string(), isComplete: z.boolean() }))
+    .handler(async ({ data }) => {
+      await db.update(todos)
+        .set({ isComplete: data.isComplete })
+        .where(eq(todos.id, data.id));
+    });
+
+  const toggleFn = useServerFn(toggleTodo);
+
+  async function handleToggle() {
+    await toggleFn({ data: { id: todo.id, isComplete: !todo.isComplete } });
+    // Invalidate route data to refresh from server
+    await router.invalidate();
+  }
+
+  return (
+    <Checkbox
+      checked={todo.isComplete}
+      onCheckedChange={handleToggle}
+    />
+  );
+}
+```
+
+### Optimistic Updates with `useOptimistic`
+
+For instant UI feedback while waiting for server response:
+
+```typescript
+import { useOptimistic } from 'react';
+
+function TodoList() {
+  const { todos } = Route.useLoaderData();
+  const router = useRouter();
+
+  // Create optimistic state that updates immediately
+  const [optimisticTodos, setOptimisticTodos] = useOptimistic(todos);
+
+  const toggleFn = useServerFn(toggleTodo);
+
+  async function handleToggle(todo: Todo) {
+    // 1. Update UI immediately (optimistic)
+    setOptimisticTodos(prev =>
+      prev.map(t =>
+        t.id === todo.id ? { ...t, isComplete: !t.isComplete } : t
+      )
+    );
+
+    // 2. Send to server
+    await toggleFn({ data: { id: todo.id, isComplete: !todo.isComplete } });
+
+    // 3. Revalidate to sync with server
+    await router.invalidate();
+  }
+
+  return (
+    <ul>
+      {optimisticTodos.map(todo => (
+        <li key={todo.id}>
+          <Checkbox
+            checked={todo.isComplete}
+            onCheckedChange={() => handleToggle(todo)}
+          />
+          {todo.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Delete with Confirmation
+
+```typescript
+const deleteTodo = createServerFn({ method: 'POST' })
+  .validator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    await db.delete(todos).where(eq(todos.id, data.id));
+  });
+
+function DeleteButton({ todoId }) {
+  const router = useRouter();
+  const deleteFn = useServerFn(deleteTodo);
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleDelete() {
+    if (!confirm('Delete this todo?')) return;
+
+    setIsPending(true);
+    await deleteFn({ data: { id: todoId } });
+    await router.invalidate();
+    setIsPending(false);
+  }
+
+  return (
+    <Button onClick={handleDelete} disabled={isPending}>
+      {isPending ? 'Deleting...' : 'Delete'}
+    </Button>
   );
 }
 ```
@@ -941,6 +1168,227 @@ const HeavyChart = lazy(() => import('@/components/HeavyChart'));
 - Keep sensitive logic in server functions
 - Validate all inputs with Zod schemas
 - Use CSRF protection for mutations
+
+---
+
+## Critical: Server Functions vs API Routes (Prisma/Better Auth)
+
+### The Problem
+
+> **WARNING:** DO NOT use `createServerFn` in route files that import Prisma, Better Auth, or other server-only packages.
+
+TanStack Start server functions defined in route files (`.tsx`) can leak server-only code into the client bundle, causing errors like:
+
+```
+node:module has been externalized for browser compatibility
+```
+
+or
+
+```
+ReferenceError: module is not defined (at @prisma/client)
+```
+
+This happens because Vite/TanStack Start doesn't fully tree-shake server function imports from route files, and Prisma uses CommonJS which doesn't work well with ESM bundling.
+
+### The Solution: Use API Routes
+
+Instead of server functions in route files, create dedicated **API routes** that are purely server-side:
+
+**API Route (`src/routes/api/settings.ts`):**
+```typescript
+import { createFileRoute } from "@tanstack/react-router";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+
+export const Route = createFileRoute("/api/settings")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        });
+
+        if (!session?.user?.id) {
+          return Response.json(
+            { error: "Not authenticated" },
+            { status: 401 },
+          );
+        }
+
+        const data = await db.someModel.findMany();
+        return Response.json({ data });
+      },
+
+      POST: async ({ request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        });
+
+        if (!session?.user?.id) {
+          return Response.json(
+            { error: "Not authenticated" },
+            { status: 401 },
+          );
+        }
+
+        const body = await request.json();
+        const result = await db.someModel.create({ data: body });
+        return Response.json({ success: true, result });
+      },
+    },
+  },
+});
+```
+
+**Client Route (`src/routes/_app/settings.tsx`):**
+```typescript
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+// Only import client-safe types/defaults (no Prisma, no auth)
+import { defaultSettings, type SettingsInput } from "@/lib/settings.shared";
+
+export const Route = createFileRoute("/_app/settings")({
+  component: SettingsPage,
+});
+
+function SettingsPage() {
+  const [settings, setSettings] = useState(defaultSettings);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/settings", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        if (data.settings) setSettings(data.settings);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(settings),
+    });
+  };
+
+  // ... render UI
+}
+```
+
+### When Server Functions ARE Safe
+
+Server functions (`createServerFn`) work fine when:
+1. They only import packages that work in both server and client environments
+2. They're defined in separate files that don't import Prisma/auth (but this is risky)
+3. Used for simple operations without database/auth dependencies
+
+### Key Takeaways
+
+| Do This | Not This |
+|---------|----------|
+| API routes at `src/routes/api/*.ts` | Server functions in route `.tsx` files |
+| Import Prisma/auth only in API routes | Import Prisma/auth in route components |
+| Use `fetch()` from client routes | Use `createServerFn` with Prisma imports |
+| Create shared type files (`*.shared.ts`) | Mix server/client types in same file |
+| Use `Response.json()` (native Web API) | Use `json()` import from tanstack |
+| Use `credentials: "include"` for auth cookies | Forget credentials on fetch calls |
+
+---
+
+## Common Gotchas & Troubleshooting
+
+### TypeScript Errors on First Run
+
+**Problem:** After creating a new project, `routeTree.gen.ts` shows errors.
+
+**Solution:**
+1. Run `npm run dev` to generate the route tree
+2. Restart TypeScript server: `Ctrl+Shift+P` → "TypeScript: Restart TS Server"
+
+The `routeTree.gen.ts` file is auto-generated while the dev server runs. It won't exist until you start the server.
+
+### Redirects Not Working from Server Functions
+
+**Problem:** Server function calls `throw redirect()` but nothing happens.
+
+**Solution:** Wrap with `useServerFn`:
+```typescript
+// ❌ Wrong - redirect silently fails
+await addTodo({ data: { name } });
+
+// ✅ Correct - redirect works
+const addTodoFn = useServerFn(addTodo);
+await addTodoFn({ data: { name } });
+```
+
+### Hot Reload Not Working for Loaders
+
+**Problem:** Changing loader code doesn't update the page.
+
+**Why:** Loaders run when navigating to a route. If you're already on the route, it won't re-run.
+
+**Solution:** Manually refresh the page after changing loader code.
+
+### Required Root Layout Components
+
+**Problem:** App broken after modifying `__root.tsx`.
+
+**Solution:** Ensure these components are present:
+```typescript
+// __root.tsx
+import { Head, Scripts } from '@tanstack/start';
+
+function RootComponent() {
+  return (
+    <html>
+      <head>
+        <Head />  {/* Required! */}
+      </head>
+      <body>
+        <Outlet />
+        <Scripts />  {/* Required! */}
+      </body>
+    </html>
+  );
+}
+```
+
+Removing either `<Head />` or `<Scripts />` breaks the application.
+
+### Database Code Errors on Client
+
+**Problem:** Console shows Postgres/database errors when navigating.
+
+**Why:** Loader runs on both client AND server. Database code can't run on client.
+
+**Solution:** Wrap all database calls in server functions:
+```typescript
+// ❌ Wrong - breaks on client
+loader: async () => {
+  return await db.query.posts.findMany();
+}
+
+// ✅ Correct - works everywhere
+const getPosts = createServerFn({ method: 'GET' }).handler(async () => {
+  return await db.query.posts.findMany();
+});
+
+loader: async () => {
+  return await getPosts();
+}
+```
+
+### Understanding `cta.json`
+
+The `cta.json` file (Create TanStack Application) stores your CLI choices:
+- Selected add-ons (Drizzle, Shadcn, etc.)
+- Package manager preference
+- Project configuration
+
+You generally don't need to modify this file.
 
 ---
 

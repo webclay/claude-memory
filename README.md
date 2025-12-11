@@ -14,14 +14,41 @@
 
 > A smart helper that teaches Claude Code exactly how to build your app, so you never have to explain the same thing twice.
 
-**Version:** 1.2.0
-**Last Updated:** 2025-12-02
+**Version:** 1.3.0
+**Last Updated:** 2025-12-11
 **Author:** Manuel Merz
 **License:** MIT
 
 ---
 
 ## Changelog
+
+### Version 1.3.0 - December 11, 2025
+
+**TanStack Start Deep Dive & New Stack Modules:**
+
+This release significantly expands TanStack Start documentation based on the official 1-hour tutorial, plus adds new stack modules for modern tooling.
+
+#### TanStack Start Documentation Overhaul
+
+| Addition | Description |
+|----------|-------------|
+| **Execution Model** | Critical section explaining loaders run on BOTH client AND server (unlike Next.js RSC) |
+| **Four Server Function Types** | `createServerFn`, `createServerOnlyFn`, `createClientOnlyFn`, `createIsomorphicFn` |
+| **`useServerFn` Hook** | Required for handling redirects from server functions |
+| **Data Mutations** | `router.invalidate()` and `useOptimistic` patterns |
+| **Prisma/Better Auth Gotcha** | When to use API routes instead of server functions |
+| **Troubleshooting Section** | Common issues and solutions |
+
+#### New Stack Modules
+
+| Module | Description |
+|--------|-------------|
+| **Durable Streams** | Resumable HTTP streams for AI token streaming that survives network failures |
+| **Bun** | All-in-one JavaScript runtime, package manager, bundler (Bun 1.3+ with text-based lockfile) |
+| **Appwrite** | Open-source backend platform (authentication, databases, storage, functions) |
+
+---
 
 ### Version 1.2.0 - December 2, 2025
 

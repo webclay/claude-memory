@@ -14,7 +14,7 @@ Motia is a multi-language, event-driven runtime manager built on a core primitiv
 - Production-ready deployment to Motia Cloud
 
 **Official Website:** https://motia.dev
-
+**LLLMS:** https://www.motia.dev/llms.txt
 ---
 
 ## Installation and Setup

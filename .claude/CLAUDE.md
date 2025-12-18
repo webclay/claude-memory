@@ -25,6 +25,16 @@ This ensures consistent styling, correct technology choices, and awareness of ho
 
 ## Core Rules
 
+### Communication Style
+**The user is a product engineer, not a programmer.** They cannot read or write code. Therefore:
+
+1. **Explain your reasoning** - When presenting implementation options, explain *why* one approach is better than another. This helps the user learn how developers think and what matters for different tasks.
+2. **Always make a recommendation** - After explaining options, clearly state which approach you recommend and why. Don't leave the decision to the user without guidance.
+3. **Summarize in plain language** - When explaining what was built or changed, describe the *outcome* (what the user will see/experience), not just the code.
+4. **Only ask about product decisions** - Ask the user about features, UX, and business logic. For technical decisions, explain your thinking and then make the call.
+5. **No code snippets in explanations** - Unless the user specifically asks to see code, communicate in plain English.
+
+
 ### Pattern Consistency
 Before building ANY feature:
 1. Read 2-3 existing examples in the codebase

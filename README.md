@@ -149,7 +149,7 @@ From Anthropic's research: Claude ignores CLAUDE.md content it deems irrelevant.
 
 **Initial Release:**
 - 🎉 Claude Memory system launched
-- 📋 Intelligent `setup` command for project initialization
+- 📋 Intelligent `cm setup` command for project initialization
 - 📚 Comprehensive stack documentation for 40+ technologies
 - ✅ Automatic task tracking and progress management
 - 🔄 Pattern consistency enforcement
@@ -225,7 +225,7 @@ It's like having a smart assistant who never forgets anything about your project
 
 ## Quick Start
 
-### ⚡ Just Type One Word: `setup`
+### ⚡ Just Type One Command: `cm setup`
 
 That's it! Claude will:
 
@@ -279,7 +279,7 @@ The `.claude` folder has a dot at the start, so your computer hides it by defaul
 In Claude Code, just type:
 
 ```
-setup
+cm setup
 ```
 
 **That's literally it!** Claude will have a friendly conversation with you:
@@ -436,7 +436,7 @@ Claude will remember this for future pages!
 ### What Happens
 
 1. **Copy the `.claude` folder** into your existing project
-2. **Type `setup`** in Claude Code
+2. **Type `cm setup`** in Claude Code
 3. **Claude looks at your code** and figures out what you're already using
 4. **Claude tells you what it found:**
    ```
@@ -742,11 +742,11 @@ Claude will suggest:
 And explain trade-offs!
 ```
 
-**7. New project? Always run `setup` first**
+**7. New project? Always run `cm setup` first**
 
 Don't start coding right away. Run:
 ```
-setup
+cm setup
 ```
 
 This creates your project memory and saves you hours of back-and-forth!
@@ -755,7 +755,7 @@ This creates your project memory and saves you hours of back-and-forth!
 
 ### When You Start Building
 
-Just type `setup` once and you're ready. Claude will:
+Just type `cm setup` once and you're ready. Claude will:
 - Learn what you want to build
 - Set up all the tools you need
 - Create a list of features to build
@@ -891,7 +891,7 @@ Claude knows how to make them all work together!
 ## Common Questions
 
 **Q: How do I pick which tools to use?**
-A: Just type `setup` and Claude will recommend the best tools for your app. You can say yes or pick different ones.
+A: Just type `cm setup` and Claude will recommend the best tools for your app. You can say yes or pick different ones.
 
 **Q: Do I need to use all these tools?**
 A: Nope! Claude only sets up what you actually need for your specific app.
@@ -900,7 +900,7 @@ A: Nope! Claude only sets up what you actually need for your specific app.
 A: Yes! Claude will look at your existing code and learn from it.
 
 **Q: What if I want to switch tools later?**
-A: Just tell Claude you want to change, run `setup` again, and it'll help you switch.
+A: Just tell Claude you want to change, run `cm setup` again, and it'll help you switch.
 
 **Q: How much time does this take to set up?**
 A: About 5 minutes of chatting with Claude. Then you're ready to build!
@@ -918,7 +918,7 @@ A: You can, but usually Claude handles everything automatically for you.
 ### Claude seems confused
 
 **Try this:**
-Just type `setup` again. Claude will check everything and fix any issues.
+Just type `cm setup` again. Claude will check everything and fix any issues.
 
 ---
 
@@ -932,7 +932,7 @@ Ask Claude: "Update my task list with what we just built"
 ### Setup didn't finish
 
 **Try this:**
-Type `setup` again and Claude will pick up where it left off.
+Type `cm setup` again and Claude will pick up where it left off.
 
 ---
 
@@ -972,10 +972,10 @@ Claude will add this as a rule and follow it for all future work!
 
 ### Get the Latest Features
 
-When a new version comes out, just type: `update`
+When a new version comes out, just type: `cm update`
 
 ```
-You: update
+You: cm update
 
 Me: "Checking for updates...
 
@@ -1027,4 +1027,4 @@ We're constantly adding support for more tools and making Claude Memory even eas
 
 **Ready to start building? 🚀**
 
-Just copy the `.claude` folder to your project, type `setup`, and watch your app come to life!
+Just copy the `.claude` folder to your project, type `cm setup`, and watch your app come to life!

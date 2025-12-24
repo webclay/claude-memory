@@ -73,3 +73,10 @@ Type `cm` followed by a command name:
 | `cm blockers` | List blocked tasks |
 | `cm update` | Check for updates |
 | `cm help` | Show all commands |
+
+### Command Execution
+
+When the user types `cm [command]`, **always read the command definition file first:**
+1. Read `.claude/cm/[command].md` for the command workflow
+2. Follow any references to guide files (e.g., `setup-workflow.md`)
+3. Execute exactly as documented, including any ASCII headers or formatting

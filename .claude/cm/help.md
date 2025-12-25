@@ -8,6 +8,7 @@ Show all available Claude Memory commands.
 | `cm status` | Show current task progress, recent commits, and uncommitted changes. |
 | `cm next` | Get a suggestion for the next task based on dependencies and priorities. |
 | `cm done` | Mark the current in-progress task as complete and update tasks.md. |
+| `cm log` | Update the changelog with a summary of work completed this session. |
 | `cm terminate` | Kill all running Node.js and dev server processes for a clean restart. |
 | `cm blockers` | List all blocked tasks and what's blocking them. |
 | `cm update` | Check for Claude Memory updates and install them. |

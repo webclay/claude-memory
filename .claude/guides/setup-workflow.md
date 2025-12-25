@@ -61,6 +61,7 @@ Check for .claude/projectbrief.md
     │      - Copy .claude-core/ files                │
     │      - Update 00-start-here.md routing         │
     │      - Create tasks.md with initial tasks      │
+    │      - Create changelog.md for session history │
     │      - Configure standards.md                  │
     │                                                 │
     ├─────────────────────────────────────────────────┘
@@ -185,6 +186,7 @@ Now I'll set up everything for you:
    ✓ /docs/prd.md (comprehensive product requirements)
    ✓ .claude/projectbrief.md (concise AI context)
    ✓ .claude/tasks.md (detailed implementation tasks)
+   ✓ .claude/changelog.md (session history for AI context)
 2. Copying core memory system files
 3. Installing required stack modules:
    ✓ framework-nextjs.md
@@ -210,6 +212,7 @@ Your project now has:
 📁 .claude/
 - projectbrief.md (concise AI context)
 - tasks.md (detailed implementation tasks from PRD)
+- changelog.md (session history for AI context)
 - 00-start-here.md (routing hub)
 - standards.md (coding guidelines)
 - 9 stack modules for your tech stack
@@ -825,34 +828,61 @@ The setup process creates TWO complementary documents:
 
 ---
 
-#### Why Three Documents?
+#### 4. Changelog File - `.claude/changelog.md`
+
+**Purpose:** Track all development history to help AI assistants understand previous work
+
+**Contains:**
+- Session log with dated entries
+- Summary of work completed each session
+- Tasks completed, bugs fixed, features added
+- Notes helpful for future sessions
+
+**Updated via:** `cm log` command at the end of each session
+
+**When to use:**
+- AI context gathering at session start
+- Understanding project history
+- Tracking what was built and when
+- Onboarding new AI sessions with project context
+
+**Template location:** `claude-memory/templates/changelog-template.md`
+
+---
+
+#### Why Four Documents?
 
 **Different Audiences:**
 - PRD → Humans (product managers, stakeholders, team)
 - Project Brief → AI (code generation context)
 - Tasks → Developers (daily implementation work)
+- Changelog → AI (session history and context)
 
 **Different Purposes:**
 - PRD → "What and why" (product strategy and planning)
 - Project Brief → "How" (technical implementation approach)
 - Tasks → "Do this now" (actionable work items)
+- Changelog → "What was done" (historical record for AI context)
 
 **Different Levels:**
 - PRD → Strategic (business goals, user needs, success metrics)
 - Project Brief → Tactical (tech stack, patterns, guidelines)
 - Tasks → Operational (specific subtasks, acceptance criteria)
+- Changelog → Historical (session-by-session progress record)
 
 **Different Timeframes:**
 - PRD → Stable (updated quarterly or when strategy changes)
 - Project Brief → Semi-stable (updated when tech decisions change)
 - Tasks → Dynamic (updated daily as work progresses)
+- Changelog → Append-only (new entries added each session via `cm log`)
 
 **Complementary, Not Redundant:**
 - PRD (Section 13) defines high-level Implementation Plan
 - Tasks.md breaks that plan into detailed, trackable subtasks
 - Project Brief provides technical context for implementing tasks
-- All three reference each other
-- Single source of truth (setup command generates all three)
+- Changelog tracks what was actually built across sessions
+- All four reference each other
+- Single source of truth (setup command generates all four)
 
 ---
 
@@ -888,6 +918,7 @@ claude-memory/stacks/
 - `/docs/prd.md` (comprehensive PRD for humans with Implementation Plan)
 - `.claude/projectbrief.md` (concise brief for AI)
 - `.claude/tasks.md` (detailed implementation tasks generated from PRD Implementation Plan)
+- `.claude/changelog.md` (session history for AI context)
 - `.claude/00-start-here.md` (update routing)
 - `.claude/standards.md` (configure for stack)
 
@@ -898,6 +929,7 @@ After setup, verify:
 - ✅ 00-start-here.md routes to all modules
 - ✅ projectbrief.md is complete
 - ✅ tasks.md has initial tasks
+- ✅ changelog.md is initialized
 - ✅ No broken cross-references
 - ✅ All placeholder text replaced
 
@@ -1111,6 +1143,7 @@ Type `cm` followed by a command name:
 | `cm status` | See current task progress |
 | `cm next` | Get next task suggestion |
 | `cm done` | Mark current task complete |
+| `cm log` | Update changelog with session summary |
 | `cm terminate` | Kill all dev servers |
 | `cm blockers` | See blocked tasks |
 | `cm update` | Check for updates |

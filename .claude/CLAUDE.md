@@ -18,6 +18,7 @@ This ensures consistent styling, correct technology choices, and awareness of ho
 |---------|------|
 | Project overview & design system | `.claude/projectbrief.md` |
 | Current tasks & progress | `.claude/tasks.md` |
+| Session history & context | `.claude/changelog.md` |
 | Mistakes to avoid | `.claude/mistakes.md` |
 | Feature routing | `.claude/00-start-here.md` |
 | Tech-specific patterns | `.claude/stacks/[category]/[tech].md` |
@@ -69,6 +70,7 @@ Type `cm` followed by a command name:
 | `cm status` | Show task progress |
 | `cm next` | Suggest next task |
 | `cm done` | Mark current task complete |
+| `cm log` | Update changelog with session summary |
 | `cm terminate` | Kill all dev servers |
 | `cm blockers` | List blocked tasks |
 | `cm update` | Check for updates |

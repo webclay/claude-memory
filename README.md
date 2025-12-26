@@ -14,14 +14,36 @@
 
 > A smart helper that teaches Claude Code exactly how to build your app, so you never have to explain the same thing twice.
 
-**Version:** 1.3.0
-**Last Updated:** 2025-12-11
+**Version:** 1.4.0
+**Last Updated:** 2025-12-26
 **Author:** Manuel Merz
 **License:** MIT
 
 ---
 
 ## Changelog
+
+### Version 1.4.0 - December 26, 2025
+
+**Changelog System & Session History:**
+
+This release adds a changelog system to help AI assistants gather context about previous work across sessions.
+
+#### New Features
+
+| Feature | Description |
+|---------|-------------|
+| **`cm log` command** | Update changelog with session summary at end of each session |
+| **`changelog.md` file** | Created during setup to track all development history |
+| **Session history tracking** | Records tasks completed, bugs fixed, features added per session |
+
+#### Updated Files
+
+- **CLAUDE.md** - Added changelog to Essential Files table, added `cm log` command
+- **setup-workflow.md** - Now creates changelog.md during initialization (Four Documents strategy)
+- **update-system.md** - Updated to include `cm/` folder in "Always Update" list
+
+---
 
 ### Version 1.3.0 - December 11, 2025
 

@@ -72,9 +72,17 @@ Done?"
 
 You: "yes"
 
+Me: "Now copy this folder:
+→ cm/
+
+Paste it into YOUR .claude/ folder.
+
+Done?"
+
+You: "yes"
+
 Me: "Perfect! Now copy these files one by one:
 → CLAUDE.md
-→ commands.md
 → triggers.md
 → 00-start-here.md
 → standards.md
@@ -136,7 +144,7 @@ The system uses a **simple, no-API approach**:
 
 **Always Update (System Files):**
 - `.claude/CLAUDE.md`
-- `.claude/commands.md`
+- `.claude/cm/**/*`
 - `.claude/triggers.md`
 - `.claude/00-start-here.md`
 - `.claude/standards.md`
@@ -216,8 +224,8 @@ function compareVersions(current, latest) {
 ### Manual Update Process
 
 Guide users through copying:
-1. Folders first (guides/, stacks/, templates/)
-2. Individual files second (CLAUDE.md, commands.md, etc.)
+1. Folders first (guides/, stacks/, templates/, cm/)
+2. Individual files second (CLAUDE.md, triggers.md, etc.)
 3. Verify at each step
 4. Never mention projectbrief.md or tasks.md (they stay untouched)
 
